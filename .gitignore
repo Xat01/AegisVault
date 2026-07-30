@@ -1,0 +1,30 @@
+# Visual Studio
+.vs/
+.vscode/
+
+# Build folders
+Debug/
+Release/
+x64/
+x86/
+
+# Build outputs
+*.obj
+*.exe
+*.ilk
+*.pdb
+*.idb
+*.ipch
+
+# Temporary files
+*.tmp
+*.log
+
+# Your vault data
+Vault/
+
+# User-specific Visual Studio files
+*.VC.db
+*.VC.opendb
+*.suo
+*.user
