@@ -8,7 +8,7 @@
 #include "Metadata.h"
 
 namespace fs = std::filesystem;
-using namespace std;
+using namespace std;	
 
 void FileManager::addFile() {
 	cout << "Add file selected." << endl;

@@ -2,12 +2,24 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include <sstream>
+#include <functional>
+#include <string>
 namespace fs = std::filesystem;
 using namespace std;
 
 bool Security::isVaultInitialized() {
-	return fs::exists(vaultPath);
+
+
+	if (!fs::exists(vaultPath)) {
+		return false;
+	}
+	if (!fs::exists(configPath)) {
+		return false;
+	}
+	return true;
 }
+	
 
 void Security::initializeVault() {
 	bool createVault = fs::create_directory(vaultPath);
@@ -54,6 +66,10 @@ void Security::createPassword() {
 			continue;
 		}
 
+		string hashPass = Security::hashPassword(userPassword);
+		
+
+
 		string configPath = vaultPath + "/vault.cfg";
 
 		ofstream configFile(configPath);
@@ -63,12 +79,14 @@ void Security::createPassword() {
 			return;
 		}
 
-		configFile << userPassword;
+		configFile << hashPass;
+		cout << "Password Hashed successfully. \n";
 		configFile.close();
 
 		cout << "Master password created successfully!\n";
 		break;
 	}
+
 }
 
 
@@ -118,7 +136,9 @@ bool Security::verifyPassword() {
 	cout << "Enter master Password: ";
 	cin >> enteredPassword;
 
-	if (enteredPassword == savedPassword) {
+	string verHashPass = Security::hashPassword(enteredPassword);
+
+	if (verHashPass == savedPassword) {
 		cout << "Accessgranted.\n";
 		return true;
 	}
@@ -140,4 +160,17 @@ bool Security::login() {
 		return true;
 
 	}
+}
+
+string Security::hashPassword(const string& password) {
+	hash<string> hasher;
+
+	size_t hashedValue = hasher(password);
+
+	ostringstream stream;
+	stream << hex << hashedValue; // converts the numericals into hexadecimals.
+
+	return stream.str();
+
+	
 }
