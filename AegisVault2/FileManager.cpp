@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <ctime>
+#include  "security.h"
 #include "Metadata.h"
 
 namespace fs = std::filesystem;
@@ -14,8 +15,7 @@ void FileManager::addFile() {
 	cout << "Add file selected." << endl;
 
 	string filepath;
-	string filename;
-	string vaultPath = "Vault";
+	string filename;	
 
 	cout << "Enter file path: ";
 	cin >> filepath;
@@ -30,8 +30,7 @@ void FileManager::addFile() {
 		string storedFileName = to_string(randomNumber) + ".tmp";
 		
 
-
-		fs::copy(filepath, vaultPath + "\\" + storedFileName);
+		fs::copy(filepath, filesPath + "\\" + storedFileName);
 
 		Metadata metadata;
 		metadata.saveData(originalFileName, storedFileName);
@@ -39,7 +38,7 @@ void FileManager::addFile() {
 
 }
 void FileManager::deleteFile() {
-	string vaultPath = "Vault";
+
 
 	cout << "Delete File Selected" << endl;
 	cout << "Enter the file name to delete: ";
@@ -54,7 +53,7 @@ void FileManager::deleteFile() {
 		return;
 	}
 	else {
-		string fullPath = vaultPath + "\\" + storedFile;
+		string fullPath = filesPath+ "\\" + storedFile;
 		if (fs::exists(fullPath)) {
 			fs::remove(fullPath);
 		}
@@ -63,7 +62,7 @@ void FileManager::deleteFile() {
 }
 
 void FileManager::extractFile(){
-	string vaultPath = "Vault";
+	
 	Metadata metadata;
 	cout << "Enter the file to extract: ";
 	string extFile;
@@ -79,7 +78,7 @@ void FileManager::extractFile(){
 		cout << "File not found." << endl;
 	}
 	else {
-		string sourcePath = vaultPath + "\\" + storedfile;
+		string sourcePath = filesPath+ "\\" + storedfile;
 		string destination = extFilePath + "\\" + extFile;
 
 		if (fs::exists(sourcePath)) {
@@ -92,4 +91,32 @@ void FileManager::extractFile(){
 			cout << "Vault file missing." << endl;
 		}
 	}
+}
+
+void FileManager::listFile() {
+
+	string original;
+	string stored;
+	int count = 0;
+
+	ifstream files("metadata.txt");
+
+	if (!files) {
+
+		for (int i = 0;i < 3;i++) {
+			cout << "ERROR-> Metadata.txt file cannot be opened!\n";
+		}
+		return;
+	}
+
+	while (getline(files, original, '|') && getline(files, stored)) {
+		cout << original << endl;
+		count++;
+	}
+	cout << "Total Count: " << count;
+	
+	
+
+
+
 }

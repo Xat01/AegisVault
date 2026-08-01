@@ -24,11 +24,21 @@ bool Security::isVaultInitialized() {
 void Security::initializeVault() {
 	bool createVault = fs::create_directory(vaultPath);
 
+
 	if (createVault) {
 		cout << "Vault created successfully.\n";
 	}
 	else {
 		cout << "Vault already exists\n";
+	}
+
+	bool createFiles = fs::create_directory(filesPath);
+
+	if (createFiles) {
+		cout << "Files folder created successfully.\n";
+	}
+	else {
+		cout << "Files folder already exists\n";
 	}
 
 	string fullVault = vaultPath + "/metadata.txt";
