@@ -16,9 +16,10 @@ void Menu::showMenu()
         cout << "========================================\n";
 
         cout << "1. Add File\n";
-        cout << "2. Delete File\n";
-        cout << "3. Extract File\n";
-        cout << "4. Exit\n";
+        cout << "2. View File\n";
+        cout << "3. Delete File\n";
+        cout << "4. Extract File\n";
+        cout << "5. Exit\n";
 
         cout << "Enter Your Choice: ";
         cin >> choice;
@@ -30,20 +31,23 @@ void Menu::showMenu()
             break;
 
         case 2:
-            fileManager.deleteFile();
+            fileManager.listFile();
             break;
 
         case 3:
-            fileManager.extractFile();
+            fileManager.deleteFile();
             break;
 
         case 4:
+            fileManager.extractFile();
+            break;
+
+        case 5:
             cout << "Exiting AegisVault..." << endl;
             break;
 
         default:
             cout << "Invalid choice. Please try again." << endl;
         }
-
-    } while (choice != 4);
+    } while (choice != 5);
 }
