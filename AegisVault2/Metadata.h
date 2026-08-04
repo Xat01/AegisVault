@@ -11,6 +11,7 @@ public:
 	string findStoredData(string originalName);
 
 	void deleteData(string originalName);
+	const std::string vaultPath = "Vault";
 
 
 };

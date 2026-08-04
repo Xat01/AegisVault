@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include  "security.h"
+#include "Encryption.h"
 #include "Metadata.h"
 
 namespace fs = std::filesystem;
@@ -16,9 +17,11 @@ void FileManager::addFile() {
 
 	string filepath;
 	string filename;	
+	string password;
 
 	cout << "Enter file path: ";
 	cin >> filepath;
+	filepath = FileManager::cleanPath(filepath);
 	if (fs::exists(filepath)) {
 		if (!fs::exists(vaultPath)) {
 			cout << "Vault not initialized\n";
@@ -29,11 +32,22 @@ void FileManager::addFile() {
 		int randomNumber = rand();
 		string storedFileName = to_string(randomNumber) + ".tmp";
 		
+		cout << "Enter encryption password: ";
+		cin >> password;
 
-		fs::copy(filepath, filesPath + "\\" + storedFileName);
+		string outputPath = filesPath + "\\" + storedFileName;
+		Encryption encryption;
 
-		Metadata metadata;
-		metadata.saveData(originalFileName, storedFileName);
+		bool success = encryption.encryptFile(filepath,outputPath,password);
+
+
+		if (success) {
+			Metadata metadata;
+			metadata.saveData(originalFileName, storedFileName);
+		}
+		else {
+			cout << "Metadata cannto be saved \n";
+		}
 	}
 
 }
@@ -61,8 +75,8 @@ void FileManager::deleteFile() {
 	}
 }
 
-void FileManager::extractFile(){
-	
+void FileManager::extractFile() {
+
 	Metadata metadata;
 	cout << "Enter the file to extract: ";
 	string extFile;
@@ -71,6 +85,7 @@ void FileManager::extractFile(){
 	string extFilePath;
 	cout << "Where to extract the file:";
 	cin >> extFilePath;
+	extFilePath = FileManager::cleanPath(extFilePath);
 
 	string storedfile = metadata.findStoredData(extFile);
 
@@ -78,19 +93,49 @@ void FileManager::extractFile(){
 		cout << "File not found." << endl;
 	}
 	else {
-		string sourcePath = filesPath+ "\\" + storedfile;
+		string sourcePath = filesPath + "\\" + storedfile;
 		string destination = extFilePath + "\\" + extFile;
+		string password;
+		cout << "Enter encryption password: ";
+		cin >> password;
 
+		Encryption encryption;
 		if (fs::exists(sourcePath)) {
 			cout << "Source: " << sourcePath << endl;
 			cout << "Destination: " << destination << endl;
-			fs::copy(sourcePath, destination);
-			cout << "File Extracted Successfully." << endl;
+
+			bool success = encryption.decryptFile(sourcePath, destination, password);
+			if (!success) {
+				cout << "Extraction failed!\n";
+				return;
+			}
+			else {
+				cout << "Extraction Successful!\n";
+				return;
+			}
 		}
 		else {
 			cout << "Vault file missing." << endl;
 		}
 	}
+}
+
+string FileManager::cleanPath(const string& path) {
+	if (path.empty()) {
+		cout << "Path cannot be empty!\n";
+		return path;
+	}
+	string cleaned = path;
+
+	if (cleaned.front() == '"') {
+		cleaned.erase(0, 1);
+	}
+	if (!cleaned.empty() && cleaned.back() == '"') {
+		cleaned.erase(cleaned.length() - 1, 1);
+	}
+	return cleaned;
+
+	
 }
 
 void FileManager::listFile() {
@@ -99,7 +144,7 @@ void FileManager::listFile() {
 	string stored;
 	int count = 0;
 
-	ifstream files("metadata.txt");
+	ifstream files(vaultPath + "/metadata.txt");
 
 	if (!files) {
 

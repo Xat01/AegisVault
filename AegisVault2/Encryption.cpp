@@ -15,8 +15,6 @@ bool Encryption::encryptFile(const string& inputPath,
         cout << "Password is empty!\n";
         return false;
     }
-
-    
     ifstream inputFile(inputPath, ios::binary);
 
     if (!inputFile)
@@ -102,4 +100,64 @@ void Encryption::xorBuffer(vector<char>& buffer,
     {
         buffer[i] ^= key[i % key.length()];
     }
+}
+
+bool Encryption::decryptFile(const string& inputPath,
+    const string& outputPath,
+    const string& password) {
+
+    if (password.empty()) {
+        cout << "Password is empty\n";
+        return false;
+    }
+
+    ifstream inputFile(inputPath, ios::binary);
+    if (!inputFile) {
+        cout << "Failed to open inputfile\n";
+        return false;
+    }
+
+    inputFile.seekg(0, ios::end);
+
+    auto fileSize = inputFile.tellg();
+
+    if (fileSize <= 0) {
+        cout << "fileSize is lesser or tellg() failed\n";
+        return false;
+    }
+
+    inputFile.seekg(0, ios::beg);
+
+    vector<char> buffer;
+    buffer.resize(static_cast<size_t>(fileSize));
+
+    inputFile.read(buffer.data(), fileSize);
+
+    if (!inputFile) {
+        cout << "failed to read inputFile\n";
+        return false;
+    }
+
+    inputFile.close();
+
+    auto key = generateKey(password);
+
+    xorBuffer(buffer, key);
+
+    ofstream outputFile(outputPath, ios::binary);
+
+    if (!outputFile) {
+        cout << "Failed to create output file\n";
+        return false;
+    }
+    outputFile.write(buffer.data(), fileSize);
+
+    if (!outputFile) {
+        cout << "Failed to write the file\n";
+        return false;
+    }
+    outputFile.close();
+
+    return true;
+
 }

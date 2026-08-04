@@ -6,7 +6,7 @@ using namespace std;
 
 void Metadata::saveData(string originalName, string storedName)
 {
-    ofstream file("metadata.txt", ios::app);
+    ofstream file(vaultPath + "/metadata.txt", ios::app);
 
     if (file.is_open())
     {
@@ -17,7 +17,7 @@ void Metadata::saveData(string originalName, string storedName)
 
 string Metadata::findStoredData(string originalName)
 {
-    ifstream file("metadata.txt");
+    ifstream file(vaultPath + "/metadata.txt");
 
     string original;
     string stored;
@@ -37,8 +37,8 @@ string Metadata::findStoredData(string originalName)
 
 void Metadata::deleteData(string originalName)
 {
-    ifstream file("metadata.txt");
-    ofstream temp("temp.txt");
+    ifstream file(vaultPath + "/metadata.txt");
+    ofstream temp(vaultPath + "/temp.txt");
 
     string original;
     string stored;
@@ -54,6 +54,6 @@ void Metadata::deleteData(string originalName)
     file.close();
     temp.close();
 
-    remove("metadata.txt");
-    rename("temp.txt", "metadata.txt");
+    remove((vaultPath + "/metadata.txt").c_str());
+    rename((vaultPath + "/temp.txt").c_str(), (vaultPath + "/metadata.txt").c_str());
 }

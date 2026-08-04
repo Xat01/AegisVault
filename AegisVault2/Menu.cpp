@@ -2,6 +2,7 @@
 #include <iostream>
 #include "FileManager.h"
 #include "Encryption.h"
+#include "Security.h"
 
 using namespace std;
 
@@ -20,7 +21,7 @@ void Menu::showMenu()
         cout << "2. View File\n";
         cout << "3. Delete File\n";
         cout << "4. Extract File\n";
-        cout << "5. Encrypt File\n";
+        cout << "5. Destroy Vault\n";
         cout << "6. Exit\n";
 
         cout << "Enter Your Choice: ";
@@ -44,25 +45,11 @@ void Menu::showMenu()
             fileManager.extractFile();
             break;
 
-        case 5:
-        {
-            Encryption env;
-
-            bool success = env.encryptFile(
-                "C:\\Users\\sa595\\Desktop\\hello.txt",
-                "C:\\Users\\sa595\\Desktop\\hello.env",
-                "Dracula123"
-            );
-
-            if (success) {
-                cout << "Encryption Successful!\n";
-            }
-            else {
-                cout << "Encryption Failed!\n";
-            }
+        case 5: {
+            Security sec;
+            sec.destroyVault();
             break;
         }
-
 
         case 6:
             cout << "Exiting AegisVault..." << endl;
@@ -71,5 +58,5 @@ void Menu::showMenu()
         default:
             cout << "Invalid choice. Please try again." << endl;
         }
-    } while (choice != 5);
+    } while (choice != 6);
 }

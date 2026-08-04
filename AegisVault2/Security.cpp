@@ -182,5 +182,28 @@ string Security::hashPassword(const string& password) {
 
 	return stream.str();
 
-	
+}
+
+void Security::destroyVault() {
+	if (!fs::exists(vaultPath)) {
+		cout << "Cannot destroy Vault does not exists\n";
+		return;
+	}
+
+	if (!verifyPassword()) {
+		cout << "Access denied\n";
+		return;
+	}
+	string delPhrase;
+	cout << "------ WARNING ------\n";
+	cout << "ABOUT TO DELETE THE VAULT AND ITS FOLDERS\n";
+	cout << "Enter DELETE or D to delete! : ";
+	cin >> delPhrase;
+
+	if (delPhrase == "DELETE" || delPhrase == "D") {
+		fs::remove_all(vaultPath);
+		cout << "Vault destroyed successfully.\n";
+		return;
+	}
+
 }

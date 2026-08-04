@@ -4,6 +4,7 @@ class Security {
 public:
 	bool login();
 	bool isVaultInitialized();
+	void destroyVault();
 	
 private:
 	

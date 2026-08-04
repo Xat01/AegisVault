@@ -10,4 +10,5 @@ public:
 private:
     const std::string vaultPath = "Vault";
     const std::string filesPath = "Vault/Files";
+    std::string cleanPath(const std::string& path);
 };
