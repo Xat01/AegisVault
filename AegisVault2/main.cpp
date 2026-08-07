@@ -7,7 +7,8 @@
 int main() {
 
 	Security sec;
-	if (sec.login()) {
+	if (sec.login()){
+		srand(time(nullptr));
 		Menu menu;
 		menu.showMenu();
 	}

@@ -28,14 +28,16 @@ void FileManager::addFile() {
 			return;
 		}
 		string originalFileName = fs::path(filepath).filename().string();
-
-		int randomNumber = rand();
-		string storedFileName = to_string(randomNumber) + ".tmp";
+		string outputPath;
+		string storedFileName;
+		do {
+			int randomNumber = rand();
+			storedFileName = to_string(randomNumber) + ".tmp";
+			outputPath = filesPath + "\\" + storedFileName;
+		} while (fs::exists(outputPath));
 		
 		cout << "Enter encryption password: ";
 		cin >> password;
-
-		string outputPath = filesPath + "\\" + storedFileName;
 		Encryption encryption;
 
 		bool success = encryption.encryptFile(filepath,outputPath,password);
@@ -46,7 +48,7 @@ void FileManager::addFile() {
 			metadata.saveData(originalFileName, storedFileName);
 		}
 		else {
-			cout << "Metadata cannto be saved \n";
+			cout << "Metadata cannot be saved \n";
 		}
 	}
 
@@ -144,12 +146,12 @@ void FileManager::listFile() {
 	string stored;
 	int count = 0;
 
-	ifstream files(vaultPath + "/metadata.txt");
+	ifstream files(vaultPath + "/metadata.dat");
 
 	if (!files) {
 
 		for (int i = 0;i < 3;i++) {
-			cout << "ERROR-> Metadata.txt file cannot be opened!\n";
+			cout << "ERROR-> metadata.dat file cannot be opened!\n";
 		}
 		return;
 	}

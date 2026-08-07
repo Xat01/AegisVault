@@ -3,26 +3,24 @@
 #include <iostream>
 #include <filesystem>
 #include <sstream>
-#include <functional>
 #include <string>
+#include <iomanip>
+#include <conio.h>
+#include "Metadata.h"
+#include <openssl/sha.h>
 namespace fs = std::filesystem;
 using namespace std;
 
 bool Security::isVaultInitialized() {
 
-
-	if (!fs::exists(vaultPath)) {
-		return false;
-	}
-	if (!fs::exists(configPath)) {
-		return false;
-	}
-	return true;
+	return fs::exists(vaultPath);
+	return fs::exists(configPath);
 }
 	
 
 void Security::initializeVault() {
 	bool createVault = fs::create_directory(vaultPath);
+	Metadata metadata;
 
 
 	if (createVault) {
@@ -41,12 +39,9 @@ void Security::initializeVault() {
 		cout << "Files folder already exists\n";
 	}
 
-	string fullVault = vaultPath + "/metadata.txt";
-
+	string fullVault = vaultPath + "/metadata.dat";
 	ofstream metadataFile(fullVault);
-
 	metadataFile.close();
-
 	Security::createPassword();
 }
 
@@ -56,7 +51,8 @@ void Security::createPassword() {
 
 	while (true) {
 		cout << "Create a master password: ";
-		cin >> userPassword;
+		userPassword = Security::getHiddenPassword();
+		cout << endl;
 
 		if (!isStrongPassword(userPassword)) {
 			cout << "\nPassword needs at least:\n";
@@ -69,7 +65,8 @@ void Security::createPassword() {
 		}
 
 		cout << "Confirm password: ";
-		cin >> confirmPassword;
+		confirmPassword = Security::getHiddenPassword();
+		cout << endl;
 
 		if (userPassword != confirmPassword) {
 			cout << "Passwords do not match. Try again.\n\n";
@@ -90,7 +87,6 @@ void Security::createPassword() {
 		}
 
 		configFile << hashPass;
-		cout << "Password Hashed successfully. \n";
 		configFile.close();
 
 		cout << "Master password created successfully!\n";
@@ -144,7 +140,8 @@ bool Security::verifyPassword() {
 	getline(configFile, savedPassword);
 	configFile.close();
 	cout << "Enter master Password: ";
-	cin >> enteredPassword;
+	enteredPassword = Security::getHiddenPassword();
+	cout << endl;
 
 	string verHashPass = Security::hashPassword(enteredPassword);
 
@@ -160,27 +157,42 @@ bool Security::verifyPassword() {
 
 
 bool Security::login() {
+	Metadata metadata;
 
-	if (Security::isVaultInitialized()) {
-		cout << "Existing user\n";
-		return verifyPassword();
-	}
-	else {
-		Security::initializeVault();
+	if (!isVaultInitialized()) {
+		initializeVault();
 		return true;
-
 	}
+	if (!verifyVaultStructure()) {
+		emergencyRecovery();
+		return false;
+	}
+	if (!verifyPassword()) {
+		return false;
+	}
+	if (!metadata.verifyMetadataIntegrity()) {
+		cout << "Integrity verification failed!\n";
+		return false;
+	}
+	return true;
 }
 
 string Security::hashPassword(const string& password) {
-	hash<string> hasher;
 
-	size_t hashedValue = hasher(password);
+	unsigned char hash[SHA256_DIGEST_LENGTH];
+	SHA256(reinterpret_cast<const unsigned char*>(password.c_str()),
+		password.size(),
+		hash);
 
-	ostringstream stream;
-	stream << hex << hashedValue; // converts the numericals into hexadecimals.
+	ostringstream ss;
 
-	return stream.str();
+	for (unsigned char byte : hash) {
+
+		ss << hex;
+		ss << setw(2) << setfill('0');
+		ss << static_cast<int>(byte);
+	}
+	return ss.str();
 
 }
 
@@ -206,4 +218,86 @@ void Security::destroyVault() {
 		return;
 	}
 
+}
+
+bool Security::verifyVaultStructure() {
+	if (!fs::exists(vaultPath)) {
+		fs::create_directory(vaultPath);
+		return true;
+	}
+
+	if (!fs::exists(filesPath)) {
+		fs::create_directory(filesPath);
+		return true;
+	}
+	if (!fs::exists(vaultPath + "/metadata.dat")) {
+		ofstream metadata(vaultPath + "/metadata.dat");
+		metadata.close();
+	}
+	if (!fs::exists(configPath)) {
+		return false;
+	}
+	return true;
+	
+}
+
+void Security::emergencyRecovery() {
+	int choice;
+	if (!fs::exists(configPath)) {
+		cout << "==============================\n";
+		cout << endl;
+		cout << endl;
+		cout << "     EMERGENCY RECOVERY        \n";
+		cout << endl;
+		cout << endl;
+		cout << "==============================\n";
+
+		cout << "1. Exit \n";
+		cout << "2. Destroy Vault\n";
+		cout << "Enter Your choice: ";
+		cin >> choice;
+
+		switch (choice) {
+		case 1:
+			cout << "Exiting vault....." << endl;
+			break;
+
+		case 2:
+			fs::remove_all(vaultPath);
+			cout << "Vault destroyed successfully.\n";
+			return;
+
+		default:
+			cout << "Invalid choice.\n";
+			return;
+		}
+	}
+	else {
+		cout << "Config File already Exists!\n";
+		return;
+	}
+}
+
+string Security::getHiddenPassword() {
+	string password;
+	char ch;
+
+	while (true) {
+		ch = _getch();
+
+		if (ch == '\r') {
+			break;
+		}
+		else if (ch == '\b') {
+			if (password.empty()) {
+				continue;
+			}
+			password.pop_back();
+			cout << '\b' << ' ' << '\b';
+			continue;
+		}
+		password += ch;
+		cout << "*";
+	}
+	return password;
 }
