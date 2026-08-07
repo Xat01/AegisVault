@@ -1,6 +1,8 @@
 #include "Menu.h"
 #include <iostream>
 #include "FileManager.h"
+#include "Encryption.h"
+#include "Security.h"
 
 using namespace std;
 
@@ -19,7 +21,8 @@ void Menu::showMenu()
         cout << "2. View File\n";
         cout << "3. Delete File\n";
         cout << "4. Extract File\n";
-        cout << "5. Exit\n";
+        cout << "5. Destroy Vault\n";
+        cout << "6. Exit\n";
 
         cout << "Enter Your Choice: ";
         cin >> choice;
@@ -42,12 +45,18 @@ void Menu::showMenu()
             fileManager.extractFile();
             break;
 
-        case 5:
+        case 5: {
+            Security sec;
+            sec.destroyVault();
+            break;
+        }
+
+        case 6:
             cout << "Exiting AegisVault..." << endl;
             break;
 
         default:
             cout << "Invalid choice. Please try again." << endl;
         }
-    } while (choice != 5);
+    } while (choice != 6);
 }
