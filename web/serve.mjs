@@ -64,15 +64,15 @@ const server = createServer(async (request, response) => {
     response.writeHead(200, {
       'content-type': MIME[extname(filePath).toLowerCase()] ?? 'application/octet-stream',
       'cache-control': NO_CACHE.has(pathname) ? 'no-cache, must-revalidate' : 'no-cache',
-      // A strict CSP: no inline scripts, no external origins except Google
-      // Fonts. worker-src allows the service worker; manifest-src the manifest.
+      // A strict CSP: no inline scripts, no external origins at all. Fonts are
+      // self-hosted, so this is genuinely airtight rather than aspirational.
       'content-security-policy': [
         "default-src 'self'",
         "script-src 'self'",
         "worker-src 'self'",
         "manifest-src 'self'",
-        "style-src 'self' https://fonts.googleapis.com",
-        "font-src 'self' https://fonts.gstatic.com data:",
+        "style-src 'self'",
+        "font-src 'self'",
         "img-src 'self' data:",
         "connect-src 'self'",
         "object-src 'none'",
