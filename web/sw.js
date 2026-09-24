@@ -31,6 +31,7 @@ const SHELL_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
+  './favicon.ico',
   './src/app.js',
   './src/core/constants.js',
   './src/core/container.js',
