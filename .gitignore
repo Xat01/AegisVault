@@ -28,3 +28,23 @@ Vault/
 *.VC.opendb
 *.suo
 *.user
+
+# ---------------------------------------------------------------- web app
+
+# Test artifacts and screenshots produced by the verification scripts
+web/tools/out/
+
+# Node, if a local server or Playwright is ever installed here
+node_modules/
+package-lock.json
+
+# Local environment overrides
+.env
+.env.local
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+
+# Assistant workspace state (local only, never useful to the repo)
+.workbuddy-ai/

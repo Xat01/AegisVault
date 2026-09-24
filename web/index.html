@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Aegis Vault — local-first encrypted storage</title>
+<meta name="description" content="A local-first encrypted vault that shows you its own cryptography: per-file salts, nonces, authentication tags, and real integrity verification.">
+
+<!-- PWA: installability and home-screen behaviour -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="application-name" content="Aegis Vault">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aegis Vault">
+<meta name="theme-color" content="#0a0b10" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%234ff0d0'/%3E%3Cpath d='M16 6l7 3v6c0 4.4-2.9 7.7-7 9-4.1-1.3-7-4.6-7-9V9l7-3z' fill='none' stroke='%2304100d' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+<link rel="stylesheet" href="./src/styles/app.css">
+</head>
+<body>
+<div id="app">
+  <div class="boot-screen">
+    <div class="boot-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#04100d" stroke-width="2" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6l7-3z"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!--
+  Install banner. Hidden by default; src/ui/install.js reveals it when the
+  browser fires beforeinstallprompt (Android/desktop Chrome) or when it detects
+  iOS Safari, which never fires that event and needs a manual hint instead.
+-->
+<div id="install-banner" class="install-banner" hidden></div>
+
+<noscript>
+  <div style="padding:40px;font-family:system-ui">
+    <h1>Aegis Vault requires JavaScript</h1>
+    <p>All encryption happens in your browser. Without JavaScript there is no key derivation and nothing can be decrypted.</p>
+  </div>
+</noscript>
+<script type="module" src="./src/app.js"></script>
+</body>
+</html>
