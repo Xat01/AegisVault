@@ -56,13 +56,15 @@ console.log(`\nTarget: ${SITE}\n`);
 // ------------------------------------------------------------------- manifest
 
 console.log('Manifest');
-const man = await page.goto(new URL('manifest.webmanifest', SITE).href, {
-  waitUntil: 'domcontentloaded',
-});
-check('manifest served', man?.ok() ?? false, `status ${man?.status()}`);
-const manType = man?.headers()['content-type'] ?? '';
+// Fetch the manifest as a resource, NOT by navigating the page to it.
+// Navigating directly makes Chrome render the JSON as a document, which then
+// requests its own /favicon.ico and produces a 404 that no real user ever
+// triggers — the instrumentation would be creating the artefact it measures.
+const manResponse = await page.request.get(new URL('manifest.webmanifest', SITE).href);
+check('manifest served', manResponse.ok(), `status ${manResponse.status()}`);
+const manType = manResponse.headers()['content-type'] ?? '';
 check('manifest content-type is JSON', /json/.test(manType), manType);
-const manifest = await man.json();
+const manifest = await manResponse.json();
 check('manifest has name', Boolean(manifest.name));
 check('manifest display is standalone', manifest.display === 'standalone');
 const has512 = manifest.icons.some((i) => i.sizes === '512x512');
