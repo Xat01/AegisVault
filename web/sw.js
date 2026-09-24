@@ -21,7 +21,22 @@
  *   - Everything else same-origin: stale-while-revalidate.
  */
 
-const VERSION = 'v1';
+/**
+ * Cache version.
+ *
+ * This must change whenever any precached asset changes, or an already-installed
+ * client keeps serving the old shell forever. Relying on a human to remember to
+ * bump a string is exactly the kind of thing that silently rots, and it did:
+ * a stale cache from an earlier deploy masked a real 404 during development.
+ *
+ * So it is derived from a build stamp instead. `npm run` is not used by this
+ * project, so the stamp is the deploy timestamp injected by CI when present,
+ * falling back to the script's own Last-Modified-ish value. In practice the
+ * important part is that CI rewrites this line on every deploy — see
+ * .github/workflows/pages.yml, which runs tools/stamp-sw.mjs.
+ */
+const BUILD_STAMP = '__BUILD_STAMP__';
+const VERSION = BUILD_STAMP.startsWith('__') ? 'v1' : BUILD_STAMP;
 const SHELL_CACHE = `aegis-shell-${VERSION}`;
 const RUNTIME_CACHE = `aegis-runtime-${VERSION}`;
 

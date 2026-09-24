@@ -40,6 +40,13 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      # Give the service worker a unique cache key per deploy. Without this an
+      # already-installed client keeps serving the old shell and never sees the
+      # update, because the cache name never changes.
+      - name: Stamp the service worker
+        run: node tools/stamp-sw.mjs "${{ github.run_id }}-${{ github.run_number }}"
+        working-directory: ./web
+
       - name: Upload web/ as the site artifact
         uses: actions/upload-pages-artifact@v3
         with:

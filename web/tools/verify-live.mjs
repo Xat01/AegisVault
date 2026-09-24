@@ -28,6 +28,10 @@ function check(name, ok, detail = '') {
 }
 
 const browser = await chromium.launch({ executablePath: CHROME });
+// A brand-new context with no inherited cache or service worker. Reusing a
+// profile here is what caused a stale `aegis-shell-v1` to mask a real 404 for
+// several deploy cycles — this check must observe the deployed site as a first
+// visitor sees it, not as a returning one does.
 const context = await browser.newContext({
   viewport: { width: 412, height: 915 },
   userAgent:
@@ -36,6 +40,12 @@ const context = await browser.newContext({
 const page = await context.newPage();
 
 const errors = [];
+page.on('response', (r) => {
+  if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url()}`);
+});
+page.on('requestfailed', (r) =>
+  errors.push(`FAILED ${r.url()} ${r.failure()?.errorText ?? ''}`),
+);
 page.on('pageerror', (e) => errors.push(e.message));
 page.on('console', (m) => {
   if (m.type() === 'error') errors.push('console: ' + m.text());
